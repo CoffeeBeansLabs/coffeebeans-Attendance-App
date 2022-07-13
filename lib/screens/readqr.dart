@@ -1,8 +1,14 @@
 import 'package:coffeebeansattendanceapp/screens/Location.dart';
+import 'package:coffeebeansattendanceapp/screens/TimeDate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+import '../widget/confetti_widget.dart';
+
+GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['profile', 'email']);
 
 class ScanScreen extends StatefulWidget {
   @override
@@ -10,6 +16,7 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
+  GoogleSignInAccount _currentUser;
 
   var qrstr = "let's Scan it";
   var height,width;
@@ -49,6 +56,17 @@ class _ScanScreenState extends State<ScanScreen> {
         .postalCode}, ${place.country}';
     setState(() {});
   }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account){
+      setState(() {
+        _currentUser = account;
+      });
+    });
+    _googleSignIn.signInSilently();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,18 +91,7 @@ class _ScanScreenState extends State<ScanScreen> {
               Text(qrstr,style: TextStyle(color: Colors.blue,fontSize: 30),),
               ElevatedButton(onPressed: scanQr,
                 child:
-                Text(('Scanner'))),
-
-                // ElevatedButton(onPressed: () async {
-                //   Position position = await _getGeoLocationPosition();
-                //   location =
-                //   'Lat: ${position.latitude} , Long: ${position.longitude}';
-                //   GetAddressFromLatLong(position);
-                //
-                //
-                // },
-                //     child: Text('Mark Your Attendance')),
-                //
+                Text(('Scan'))),
                 Text('Coordinates Points',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
                 Text(
@@ -92,6 +99,22 @@ class _ScanScreenState extends State<ScanScreen> {
                 Text('ADDRESS',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
               Text('${Address}'),
+
+              RawMaterialButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (ctx) => TimeDate()));
+
+                },
+                elevation: 2.0,
+                fillColor: Colors.white,
+                child: Icon(
+                  Icons.arrow_circle_right,
+                  size: 35.0,
+                ),
+                padding: EdgeInsets.all(15.0),
+                shape: CircleBorder(),
+              ),
             ],
           ),
         ),
@@ -104,7 +127,7 @@ class _ScanScreenState extends State<ScanScreen> {
       FlutterBarcodeScanner.scanBarcode('#2A99CF', 'cancel', true, ScanMode.QR)
           .then((value) async {
         setState(() {
-          qrstr = value;
+          qrstr;
         });
             Position position = await _getGeoLocationPosition();
             location =
