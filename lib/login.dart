@@ -138,15 +138,17 @@ class _SignInDemoState extends State<SignInDemo> {
   // }
 
   void myFunction() {
-    var data = {};
-    http.post(Uri.parse("http://10.0.2.2:8080/employee/save"), headers:<String,String>{
+
+   var data =  http.post(Uri.parse("http://10.0.2.2:8080/employee/save"), headers:<String,String>{
       'Content-Type': 'application/json;charset=UTF-8'
     },
       body:jsonEncode({
         'email':_currentUser.email,
         'name':_currentUser.displayName
       }),
+
     ).then((response) => print(response.body)).catchError((error) => print(error));
+   print(data);
   }
 }
 

@@ -31,7 +31,7 @@ class _TimeDateState extends State<TimeDate> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Display Current DateTime'),
+          title: Center(child: Text('Display Current DateTime')),
         ),
         body: Center(
           child:

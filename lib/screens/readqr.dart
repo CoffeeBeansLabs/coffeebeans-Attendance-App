@@ -6,7 +6,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../widget/confetti_widget.dart';
 
 GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['profile', 'email']);
 
@@ -20,6 +19,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   var qrstr = "let's Scan it";
   var height,width;
+  var disable=true;
 
   String location = 'Null, Press Button';
   String Address = 'search';
@@ -102,9 +102,12 @@ class _ScanScreenState extends State<ScanScreen> {
 
               RawMaterialButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (ctx) => TimeDate()));
-
+                  print('disable');
+                  print(disable);
+                  if(disable){
+                    return;
+                  }
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>TimeDate()));
                 },
                 elevation: 2.0,
                 fillColor: Colors.white,
@@ -127,7 +130,8 @@ class _ScanScreenState extends State<ScanScreen> {
       FlutterBarcodeScanner.scanBarcode('#2A99CF', 'cancel', true, ScanMode.QR)
           .then((value) async {
         setState(() {
-          qrstr;
+          qrstr="Scan Successful";
+          disable=false;
         });
             Position position = await _getGeoLocationPosition();
             location =
