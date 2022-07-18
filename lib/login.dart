@@ -16,6 +16,7 @@ class SignInDemo extends StatefulWidget {
 
 class _SignInDemoState extends State<SignInDemo> {
   String url = "http://10.0.2.2:8080/employee/save";
+  var disable=true;
 
   GoogleSignInAccount _currentUser;
 
@@ -35,13 +36,14 @@ class _SignInDemoState extends State<SignInDemo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('SignIn Page',)),
+        title: Center(child: Text('Home Page',)),
       ),
       body: Center(child: _buildBody()),
     );
   }
 
   Widget _buildBody() {
+
     if (_currentUser != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -58,13 +60,24 @@ class _SignInDemoState extends State<SignInDemo> {
           ),
 
           // ElevatedButton(onPressed: myFunction, child: Text("save data")),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (ctx) => ScanScreen())).then((value) => myFunction());
 
-              },
-              child: Text('Read QR code')),
+          RawMaterialButton(
+            onPressed: () {
+              print('disable');
+              print(disable);
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ScanScreen())).then((value) => myFunction());
+            },
+            elevation: 5.0,
+            fillColor: Colors.white,
+            child: Icon(
+
+              Icons.arrow_circle_right,
+              size: 50.0,
+            ),
+            padding: EdgeInsets.all(15.0),
+            shape: CircleBorder(),
+          ),
+
           // ElevatedButton(onPressed: signOutFromGoogle, child: Text("SignOut"))
 
         ],
@@ -100,44 +113,8 @@ class _SignInDemoState extends State<SignInDemo> {
     }
   }
 
-  Future<void> signOutFromGoogle() async {
-    await _googleSignIn.signOut();
-  }
 
-  // Future<http.Response> save() async {
-  //   return http.post(
-  //     Uri.parse(url),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-  //     body: jsonEncode({
-  //       'email': _currentUser.email,
-  //       'name': _currentUser.displayName
-  //     }),
-  //   );
-  //
-  // }
-  // void myFunction() async {
-  //   var data = {};
-  //   var response = await http.post(Uri.parse(url), headers:<String,String>{
-  //     'Content-Type': 'application/json;charset=UTF-8'
-  //
-  //   },
-  //    body:jsonEncode({
-  //      'email':_currentUser.email,
-  //      'name':_currentUser.displayName
-  //    }),
-  //
-  //
-  //   );
-  //   if (response.statusCode == 200) {
-  //     print(response);
-  //   } else {
-  //     print('A network error occurred');
-  //   }
-  // }
-
-  void myFunction() {
+  Future<void> myFunction() {
 
    var data =  http.post(Uri.parse("http://10.0.2.2:8080/employee/save"), headers:<String,String>{
       'Content-Type': 'application/json;charset=UTF-8'
@@ -148,7 +125,9 @@ class _SignInDemoState extends State<SignInDemo> {
       }),
 
     ).then((response) => print(response.body)).catchError((error) => print(error));
+
    print(data);
+
   }
 }
 

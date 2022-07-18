@@ -1,12 +1,12 @@
-import 'package:coffeebeansattendanceapp/screens/Location.dart';
-import 'package:coffeebeansattendanceapp/screens/TimeDate.dart';
+import 'dart:convert';
+import 'dart:ffi';
+import 'package:coffeebeansattendanceapp/screens/LastScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-
+import 'package:http/http.dart' as http;
 GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['profile', 'email']);
 
 class ScanScreen extends StatefulWidget {
@@ -15,14 +15,35 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
+
   GoogleSignInAccount _currentUser;
 
   var qrstr = "let's Scan it";
   var height,width;
-  var disable=true;
-
+  bool disable=false;
+  bool submitdisable=false;
   String location = 'Null, Press Button';
   String Address = 'search';
+  TextEditingController Textcontroller = new TextEditingController();
+
+
+  @override
+  void initState() {
+    super.initState();
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+      setState(() {
+        _currentUser=account;
+      });
+    });
+    _googleSignIn.signInSilently();
+
+    Textcontroller.addListener(() {
+      final disable=Textcontroller.text.isNotEmpty;
+
+      setState(() => this.disable = disable);
+
+    });
+  }
 
   Future<Position> _getGeoLocationPosition() async {
     bool serviceEnabled;
@@ -56,17 +77,7 @@ class _ScanScreenState extends State<ScanScreen> {
         .postalCode}, ${place.country}';
     setState(() {});
   }
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account){
-      setState(() {
-        _currentUser = account;
-      });
-    });
-    _googleSignIn.signInSilently();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -88,63 +99,89 @@ class _ScanScreenState extends State<ScanScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              TextField(
+                controller : Textcontroller,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter Body Temperature',
+                ),
+
+                // onChanged: (s) {
+                //   int s = int.parse(
+                //       Textcontroller.text);
+                // },
+
+              ),
+
+
+              SizedBox(height: 16,),
               Text(qrstr,style: TextStyle(color: Colors.blue,fontSize: 30),),
-              ElevatedButton(onPressed: scanQr,
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(onSurface: Colors.blue),
+                  onPressed:disable?() {
+                  setState(()=>disable=false);
+
+                  scanQr();
+
+                  }:null,
                 child:
                 Text(('Scan'))),
-                Text('Coordinates Points',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
-                Text(
-                location, style: TextStyle(color: Colors.black, fontSize: 16),),
-                Text('ADDRESS',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
-              Text('${Address}'),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(onSurface: Colors.blue),
 
-              RawMaterialButton(
-                onPressed: () {
-                  print('disable');
-                  print(disable);
-                  if(disable){
-                    return;
-                  }
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>TimeDate()));
-                },
-                elevation: 2.0,
-                fillColor: Colors.white,
-                child: Icon(
-                  Icons.arrow_circle_right,
-                  size: 35.0,
-                ),
-                padding: EdgeInsets.all(15.0),
-                shape: CircleBorder(),
-              ),
+                  onPressed:submitdisable? () {
+
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>TimeDate())).then((value) => myFunction());
+
+              }:null, child: Text("submit")),
+
+
             ],
           ),
         ),
     );
   }
-
-
   Future <void>scanQr()async{
     try {
+
       FlutterBarcodeScanner.scanBarcode('#2A99CF', 'cancel', true, ScanMode.QR)
           .then((value) async {
         setState(() {
-          qrstr="Scan Successful";
-          disable=false;
+          print("variable value is $value");
+          qrstr=value;
+          submitdisable=true;
         });
-            Position position = await _getGeoLocationPosition();
-            location =
-            'Lat: ${position.latitude} , Long: ${position.longitude}';
-            GetAddressFromLatLong(position);
+          Position position = await _getGeoLocationPosition();
+          location =
+          'Lat: ${position.latitude} , Long: ${position.longitude}';
+          GetAddressFromLatLong(position);
       });
-
     }
     catch(e){
       setState(() {
         qrstr='unable to read this';
       });
     }
+
+  }
+
+  Future<void> myFunction() async {
+
+    Position position = await _getGeoLocationPosition();
+    var data =  http.post(Uri.parse("http://10.0.2.2:8080/attendance/save"), headers:<String,String>{
+      'Content-Type': 'application/json;charset=UTF-8'
+    },
+      body:jsonEncode({
+        'email' : _currentUser.email,
+        'temperature' : Textcontroller.text,
+           'longitude' : position.longitude,
+           'latitude' : position.latitude
+      }),
+
+    ).then((response) => print(response.body)).catchError((error) => print(error));
+
+    print(data);
+
   }
 
 }
