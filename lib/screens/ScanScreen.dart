@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:coffeebeansattendanceapp/screens/LastScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -20,11 +19,12 @@ class _ScanScreenState extends State<ScanScreen> {
 
   var qrstr = "let's Scan it";
   var height,width;
-  bool disable=false;
-  bool submitdisable=false;
+  bool scanButtonDisable=false;
+  bool submitButtonDisable=false;
   String location = 'Null, Press Button';
   String Address = 'search';
   TextEditingController Textcontroller = new TextEditingController();
+  String qrcode;
 
 
   @override
@@ -40,7 +40,7 @@ class _ScanScreenState extends State<ScanScreen> {
     Textcontroller.addListener(() {
       final disable=Textcontroller.text.isNotEmpty;
 
-      setState(() => this.disable = disable);
+      setState(() => this.scanButtonDisable = disable);
 
     });
   }
@@ -118,8 +118,8 @@ class _ScanScreenState extends State<ScanScreen> {
               Text(qrstr,style: TextStyle(color: Colors.blue,fontSize: 30),),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(onSurface: Colors.blue),
-                  onPressed:disable?() {
-                  setState(()=>disable=false);
+                  onPressed:scanButtonDisable?() {
+                  setState(()=>scanButtonDisable=false);
 
                   scanQr();
 
@@ -129,12 +129,11 @@ class _ScanScreenState extends State<ScanScreen> {
               ElevatedButton(
                   style: ElevatedButton.styleFrom(onSurface: Colors.blue),
 
-                  onPressed:submitdisable? () {
-
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>TimeDate())).then((value) => myFunction());
+                  onPressed:submitButtonDisable? () {
+                    saveAttendanceData();
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen()));
 
               }:null, child: Text("submit")),
-
 
             ],
           ),
@@ -148,8 +147,8 @@ class _ScanScreenState extends State<ScanScreen> {
           .then((value) async {
         setState(() {
           print("variable value is $value");
-          qrstr=value;
-          submitdisable=true;
+          qrstr='Scan successful';
+          submitButtonDisable=true;
         });
           Position position = await _getGeoLocationPosition();
           location =
@@ -162,26 +161,23 @@ class _ScanScreenState extends State<ScanScreen> {
         qrstr='unable to read this';
       });
     }
-
   }
-
-  Future<void> myFunction() async {
-
+  Future<void> saveAttendanceData() async {
     Position position = await _getGeoLocationPosition();
-    var data =  http.post(Uri.parse("http://10.0.2.2:8080/attendance/save"), headers:<String,String>{
+    var data =  http.post(Uri.parse("http://192.168.0.153:8080/attendance/save"), headers:<String,String>{
       'Content-Type': 'application/json;charset=UTF-8'
     },
       body:jsonEncode({
         'email' : _currentUser.email,
         'temperature' : Textcontroller.text,
            'longitude' : position.longitude,
-           'latitude' : position.latitude
+           'latitude' : position.latitude,
       }),
-
     ).then((response) => print(response.body)).catchError((error) => print(error));
-
     print(data);
-
   }
+
+
+
 
 }

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:coffeebeansattendanceapp/screens/readqr.dart';
+import 'package:coffeebeansattendanceapp/screens/ScanScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
@@ -36,7 +36,7 @@ class _SignInDemoState extends State<SignInDemo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('Home Page',)),
+        title: Center(child: Text('Coffeebeans',)),
       ),
       body: Center(child: _buildBody()),
     );
@@ -65,7 +65,8 @@ class _SignInDemoState extends State<SignInDemo> {
             onPressed: () {
               print('disable');
               print(disable);
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>ScanScreen())).then((value) => myFunction());
+              saveEmployeeData();
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ScanScreen()));
             },
             elevation: 5.0,
             fillColor: Colors.white,
@@ -114,9 +115,9 @@ class _SignInDemoState extends State<SignInDemo> {
   }
 
 
-  Future<void> myFunction() {
+  Future<void> saveEmployeeData() {
 
-   var data =  http.post(Uri.parse("http://10.0.2.2:8080/employee/save"), headers:<String,String>{
+   var data =  http.post(Uri.parse("http://192.168.0.153:8080/employee/save"), headers:<String,String>{
       'Content-Type': 'application/json;charset=UTF-8'
     },
       body:jsonEncode({
