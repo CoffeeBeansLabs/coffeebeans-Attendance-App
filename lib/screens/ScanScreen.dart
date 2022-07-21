@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:coffeebeansattendanceapp/screens/LastScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -25,6 +27,8 @@ class _ScanScreenState extends State<ScanScreen> {
   String Address = 'search';
   TextEditingController Textcontroller = new TextEditingController();
   String qrcode;
+  var listdata;
+  var data;
 
 
   @override
@@ -105,15 +109,11 @@ class _ScanScreenState extends State<ScanScreen> {
                   border: OutlineInputBorder(),
                   hintText: 'Enter Body Temperature',
                 ),
-
-                // onChanged: (s) {
-                //   int s = int.parse(
-                //       Textcontroller.text);
-                // },
-
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
               ),
-
-
               SizedBox(height: 16,),
               Text(qrstr,style: TextStyle(color: Colors.blue,fontSize: 30),),
               ElevatedButton(
@@ -130,10 +130,20 @@ class _ScanScreenState extends State<ScanScreen> {
                   style: ElevatedButton.styleFrom(onSurface: Colors.blue),
 
                   onPressed:submitButtonDisable? () {
-                    saveAttendanceData();
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen()));
+                    setState(()=>submitButtonDisable=false);
+                    getData();
+                    // if(listdata==_currentUser.email) {
+                    //   qrstr="your attendance have submitted see you tomorrow";
+                    //
+                    // }
+                    // else {
+                    //   Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen())).then((value) => saveAttendanceData());
+                    //
+                    // }
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen())).then((value) => saveAttendanceData());
 
-              }:null, child: Text("submit")),
+
+                  }:null, child: Text("submit")),
 
             ],
           ),
@@ -145,15 +155,31 @@ class _ScanScreenState extends State<ScanScreen> {
 
       FlutterBarcodeScanner.scanBarcode('#2A99CF', 'cancel', true, ScanMode.QR)
           .then((value) async {
+
         setState(() {
           print("variable value is $value");
-          qrstr='Scan successful';
           submitButtonDisable=true;
         });
+        qrcode=value;
+        if(qrcode!="-1") {
           Position position = await _getGeoLocationPosition();
           location =
           'Lat: ${position.latitude} , Long: ${position.longitude}';
           GetAddressFromLatLong(position);
+          qrstr="scan successful";
+          getData();
+          if(listdata==_currentUser.email) {
+            qrstr="your attendance have submitted see you tomorrow";
+            submitButtonDisable=false;
+
+          }
+
+        }
+        else {
+          qrstr = "scan again";
+          submitButtonDisable=false;
+        }
+
       });
     }
     catch(e){
@@ -164,9 +190,10 @@ class _ScanScreenState extends State<ScanScreen> {
   }
   Future<void> saveAttendanceData() async {
     Position position = await _getGeoLocationPosition();
-    var data =  http.post(Uri.parse("http://192.168.0.153:8080/attendance/save"), headers:<String,String>{
+    data =  http.post(Uri.parse("https://attendance-application-spring.herokuapp.com/attendance/save"), headers:<String,String>{
       'Content-Type': 'application/json;charset=UTF-8'
     },
+
       body:jsonEncode({
         'email' : _currentUser.email,
         'temperature' : Textcontroller.text,
@@ -174,10 +201,15 @@ class _ScanScreenState extends State<ScanScreen> {
            'latitude' : position.latitude,
       }),
     ).then((response) => print(response.body)).catchError((error) => print(error));
-    print(data);
+    print('json data : $data');
   }
-
-
-
-
+  Future getData() async {
+    print('json data email,date');
+    print("get data from list");
+    http.Response response = await http.get(Uri.parse("https://attendance-application-spring.herokuapp.com/attendance/list"));
+    setState(() {
+      listdata = jsonDecode(response.body.toString())[0]['email'];
+      print(listdata);
+    });
+  }
 }

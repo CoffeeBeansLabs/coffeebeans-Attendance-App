@@ -18,9 +18,10 @@ class LastScreenState extends State<LastScreen> {
     // TODO: implement initState
     super.initState();
 
-    Future.delayed(const Duration(seconds: 3),() {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> SignInDemo()));
-    });
+    // Future.delayed(const Duration(seconds: ),() {
+    //
+    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> SignInDemo()));
+    // });
   }
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,7 @@ class LastScreenState extends State<LastScreen> {
           builder: (context) {
             return Center(child: Container(child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: SizedBox(child: Text("congratulations your attendance has been submitted",style: TextStyle(color: Colors.white),textAlign: TextAlign.center)),
+              child: SizedBox(child: Text("congratulations your attendance has been submitted, See you tomorrow",style: TextStyle(color: Colors.white),textAlign: TextAlign.center)),
             )));
           }
         ),
