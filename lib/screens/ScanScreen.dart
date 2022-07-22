@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'package:coffeebeansattendanceapp/screens/LastScreen.dart';
@@ -20,6 +21,7 @@ class _ScanScreenState extends State<ScanScreen> {
   GoogleSignInAccount _currentUser;
 
   var qrstr = "let's Scan it";
+  var submit=" ";
   var height,width;
   bool scanButtonDisable=false;
   bool submitButtonDisable=false;
@@ -34,12 +36,14 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchPost();
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
       setState(() {
         _currentUser=account;
       });
     });
     _googleSignIn.signInSilently();
+    // Timer.periodic(Duration(minutes: 1), (Timer t) =>_fetchPost());
 
     Textcontroller.addListener(() {
       final disable=Textcontroller.text.isNotEmpty;
@@ -116,6 +120,8 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
               SizedBox(height: 16,),
               Text(qrstr,style: TextStyle(color: Colors.blue,fontSize: 30),),
+              Text(submit,style: TextStyle(color: Colors.blue,fontSize: 30),),
+
               ElevatedButton(
                 style: ElevatedButton.styleFrom(onSurface: Colors.blue),
                   onPressed:scanButtonDisable?() {
@@ -132,14 +138,14 @@ class _ScanScreenState extends State<ScanScreen> {
                   onPressed:submitButtonDisable? () {
                     setState(()=>submitButtonDisable=false);
                     getData();
-                    // if(listdata==_currentUser.email) {
-                    //   qrstr="your attendance have submitted see you tomorrow";
-                    //
-                    // }
-                    // else {
-                    //   Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen())).then((value) => saveAttendanceData());
-                    //
-                    // }
+                    if(listdata==_currentUser.email) {
+                      qrstr="your attendance have submitted see you tomorrow";
+
+                    }
+                    else {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen())).then((value) => saveAttendanceData());
+
+                    }
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen())).then((value) => saveAttendanceData());
 
 
@@ -150,6 +156,21 @@ class _ScanScreenState extends State<ScanScreen> {
         ),
     );
   }
+
+  var _data;
+
+  Future _fetchPost() async  {
+
+    print('print 1');
+    http.Response response = await http.get(Uri.parse("https://attendance-application-spring.herokuapp.com/qrcode/uniqueId"));
+    setState(() {
+      _data = jsonEncode(response.body.toString());
+      print(_data.toString());
+    });
+    return "Success";
+  }
+
+
   Future <void>scanQr()async{
     try {
 
@@ -159,21 +180,24 @@ class _ScanScreenState extends State<ScanScreen> {
         setState(() {
           print("variable value is $value");
           submitButtonDisable=true;
+
         });
+        getData();
+        if(listdata==_currentUser.email) {
+          submit="your attendance have submitted see you tomorrow";
+          submitButtonDisable=false;
+
+
+        }
         qrcode=value;
-        if(qrcode!="-1") {
+
+
+        if(qrcode==_data) {
           Position position = await _getGeoLocationPosition();
           location =
           'Lat: ${position.latitude} , Long: ${position.longitude}';
           GetAddressFromLatLong(position);
           qrstr="scan successful";
-          getData();
-          if(listdata==_currentUser.email) {
-            qrstr="your attendance have submitted see you tomorrow";
-            submitButtonDisable=false;
-
-          }
-
         }
         else {
           qrstr = "scan again";
@@ -212,4 +236,5 @@ class _ScanScreenState extends State<ScanScreen> {
       print(listdata);
     });
   }
+
 }

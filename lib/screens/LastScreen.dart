@@ -1,9 +1,6 @@
-import 'package:coffeebeansattendanceapp/main.dart';
-import 'package:coffeebeansattendanceapp/screens/login.dart';
-import 'package:coffeebeansattendanceapp/screens/ScanScreen.dart';
+
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:async';
+
 
 
 class LastScreen extends StatefulWidget {
@@ -18,26 +15,28 @@ class LastScreenState extends State<LastScreen> {
     // TODO: implement initState
     super.initState();
 
-    // Future.delayed(const Duration(seconds: ),() {
-    //
-    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> SignInDemo()));
-    // });
   }
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Builder(
-          builder: (context) {
-            return Center(child: Container(child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(child: Text("congratulations your attendance has been submitted, See you tomorrow",style: TextStyle(color: Colors.white),textAlign: TextAlign.center)),
-            )));
-          }
-        ),
-      ],
+    return Scaffold(
+      appBar: AppBar(
+          title:Center(child: Text("Coffeebeans"))
+      ),
+      body: Center(
+          child:Center(
+            child: Text("congratulations your attendance has been submitted, See you tomorrow",style: TextStyle(
+                fontSize: 35,
+                color: Colors.green,
+                fontWeight: FontWeight.w700,
+                fontStyle: FontStyle.italic,
+                letterSpacing: 8,
+                wordSpacing: 20,
+
+            ),
+      ),
+          )
+      ),
     );
-
-
   }
+
 }
