@@ -47,6 +47,8 @@ dependencies:
   flutter_signin_button: ^2.0.0
 
   provider: ^4.3.1
+  flutter_svg: ^0.19.3
+  flutter_svg_provider: ^0.1.8
 
 
 
@@ -79,6 +81,15 @@ flutter_icons:
 
 
 flutter:
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-Regular.ttf
+          weight: 400
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

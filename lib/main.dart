@@ -6,6 +6,7 @@ import 'package:coffeebeansattendanceapp/screens/login.dart';
 void main() => runApp(MaterialApp(
   title: 'Google Sign in',
   home: Splash(),
+  theme: ThemeData(fontFamily: 'Montserrat'),
 ));
 
 
