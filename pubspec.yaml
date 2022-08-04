@@ -49,6 +49,7 @@ dependencies:
   provider: ^4.3.1
   flutter_svg: ^0.19.3
   flutter_svg_provider: ^0.1.8
+  shared_preferences:
 
 
 

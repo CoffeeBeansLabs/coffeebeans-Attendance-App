@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['profile', 'email']);
 
 class ScanScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchPost();
+    // _fetchPost();
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
       setState(() {
         _currentUser=account;
@@ -146,15 +147,17 @@ class _ScanScreenState extends State<ScanScreen> {
               child: Container(
                 margin: EdgeInsets.only(top:350,),
                 child: TextField(
+
                   controller : Textcontroller,
-                  style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold ),
+                  style: TextStyle(fontSize: 16,height:1,fontWeight: FontWeight.bold,color: const Color(0xFF553205) ),
+
                   decoration:
                   new InputDecoration(
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Color(0xFF553205)),
                     ),
                     enabledBorder: new  OutlineInputBorder(
-                        borderSide: const  BorderSide(color: Color(0xFF553205)),
+                        borderSide: const  BorderSide(color: Color(0xFF553205),width: 3),
                     ),
                     prefixText: "\t",
                     suffixIcon:Padding(
@@ -213,14 +216,17 @@ class _ScanScreenState extends State<ScanScreen> {
                 margin: EdgeInsets.only(top:470),
                 child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      primary:const Color(0xFFE9CFAB),fixedSize: const Size(150, 50),
+                      primary: const Color(  0xFFE9CFAB),
+                        fixedSize: const Size(150, 50),
+                        onSurface:const Color.fromRGBO(255, 179, 102, 1),
                     ),
                     onPressed:scanButtonDisable?() {
                               setState(()=>scanButtonDisable=true);
+                              _fetchPost();
                               scanQr();
                               }:null,
                             child:
-                            Text(('SCAN'),style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16,  color: const Color(0xFF654113),),)),
+                            Text(scanButtonDisable ? ('SCAN') : ('SCANNED'),style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16,  color: scanButtonDisable ? const Color(0xFF654113):const Color(0xFFC0A17A),),)),
               ),
               ],
             ),
@@ -281,10 +287,12 @@ class _ScanScreenState extends State<ScanScreen> {
               children: [
               ElevatedButton(
                             style: ElevatedButton.styleFrom(primary:Color(0xFF422501),fixedSize: const Size(340, 50),),
-                            onPressed:(checkboxImageDisable && scanImageDisable)? () {
+                            onPressed:(checkboxImageDisable && scanImageDisable)? () async {
                               setState(()=>submitButtonDisable=false);
+                              saveAttendanceData();
+                              await saveTodayDate();
 
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen())).then((value) => saveAttendanceData());
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen()));
                             }:null, child: Text("DONE",style: TextStyle(fontFamily:'Montserrat',fontStyle: FontStyle.normal ,color: const Color(0xFFF6EEE3),fontWeight: FontWeight.w700,fontSize: 16),)),
               ],
             ),
@@ -294,15 +302,16 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  var _data;
+  String _data;
+
 
   Future _fetchPost() async  {
-
     print('print 1');
     http.Response response = await http.get(Uri.parse("https://attendance-application-spring.herokuapp.com/qrcode/uniqueId"));
     setState(() {
       _data = jsonEncode(response.body.toString());
-      print(_data.toString());
+      print("api data is: "+_data.toString());
+
     });
     return "Success";
   }
@@ -314,33 +323,47 @@ class _ScanScreenState extends State<ScanScreen> {
       FlutterBarcodeScanner.scanBarcode('#2A99CF', 'cancel', true, ScanMode.QR)
           .then((value) async {
         setState(() {
-          print("variable value is $value");
+
+          print("camera reading value is :  $value");
         });
-        qrcode=value;
+
+        print("qrcode data is "+_data.toString());
+
+
         if(value=="-1") {
           failqrcode=false;
           Text(qrstr=" ");
         }
-        else if(qrcode==_data) {
+        else if(value==_data) {
+          print("main qrcode string");
           scanButtonDisable=false;
           scanImageDisable=true;
           failqrcode=false;
           Text(qrstr=" ");
           // scanImageDisable=!scanImageDisable;
         }
-        else if(qrcode==_data) {
-          scanButtonDisable=false;
-          scanImageDisable=true;
-          failqrcode=false;
-          Text(qrstr=" ");
-          // scanImageDisable=!scanImageDisable;
+        else if(value!=_data) {
+          await _fetchPost();
+          print("update string value");
+          print("new api string :"+_data);
+          if(value==_data){
+            scanButtonDisable=false;
+            scanImageDisable=true;
+            failqrcode=false;
+            Text(qrstr=" ");
+
+          }
+          else {
+            Text(qrstr="Invalid QR. Please retry.");
+            submitButtonDisable=false;
+            failqrcode=true;
+          }
         }
         else {
           Text(qrstr="Invalid QR. Please retry.");
           submitButtonDisable=false;
-          failqrcode=!failqrcode;
+          failqrcode=true;
         }
-
       });
     }
     catch(e){
@@ -351,13 +374,21 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
 
+  Future<void> saveTodayDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    String date = DateFormat("MMMM dd yyyy").format(DateTime.now());
+// set value
+    await prefs.setString('TodayDate', date);
+    print("check store data in dateformat :$date");
+  }
+
 
   Future<void> saveAttendanceData() async {
+    print("check save data in database or not ");
     Position position = await _getGeoLocationPosition();
     data =  http.post(Uri.parse("https://attendance-application-spring.herokuapp.com/attendance/save"), headers:<String,String>{
       'Content-Type': 'application/json;charset=UTF-8'
     },
-
       body:jsonEncode({
         'email' : _currentUser.email,
         'temperature' : Textcontroller.text,
@@ -366,17 +397,8 @@ class _ScanScreenState extends State<ScanScreen> {
       }),
     ).then((response) => print(response.body)).catchError((error) => print(error));
     print('json data : $data');
-  }
-  Future getData() async {
-    print('json data email,date');
-    print("get data from list");
-    http.Response response = await http.get(Uri.parse("https://attendance-application-spring.herokuapp.com/attendance/list"));
-    setState(() {
-      listdata = jsonDecode(response.body.toString())['email'];
-      apidate = jsonDecode(response.body.toString())['dates'];
-      print(listdata.toString());
-      print(localdate);
-    });
+    print("save data in json format");
   }
 
-}
+  }
+

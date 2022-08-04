@@ -1,29 +1,25 @@
 import 'dart:convert';
 import 'package:coffeebeansattendanceapp/screens/ScanScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/button_list.dart';
-import 'package:flutter_signin_button/button_view.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['profile', 'email']);
-
-
 class SignInDemo extends StatefulWidget {
   @override
   _SignInDemoState createState() => _SignInDemoState();
 }
-
 class _SignInDemoState extends State<SignInDemo> {
   var disable=true;
   GoogleSignInAccount _currentUser;
   String location = 'Null, Press Button';
   String Address = 'search';
   final String assetName = 'assets/Vector.svg';
-
   @override
   void initState() {
     // TODO: implement initState
@@ -35,15 +31,23 @@ class _SignInDemoState extends State<SignInDemo> {
     });
     _googleSignIn.signInSilently();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(child: _buildBody()),
     );
   }
+  String storeDate;
+  String today;
 
+  Future<void> readStoreData() async {
+    final prefs = await SharedPreferences.getInstance();
+    storeDate = prefs.getString('TodayDate') ?? "";
+    String today = DateFormat("MMMM dd yyyy").format(DateTime.now());
+
+  }
   Widget _buildBody() {
+
     if (_currentUser != null) {
       return Scaffold(
         body: Stack(
@@ -52,9 +56,9 @@ class _SignInDemoState extends State<SignInDemo> {
               top: 30,
               left: 10,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                      // margin: EdgeInsets.only(),
                       child: Image.asset('assets/shelf2.png',height: 140,)),
                 ],
               ),
@@ -63,9 +67,9 @@ class _SignInDemoState extends State<SignInDemo> {
               top: 390,
               left: 30,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                 Text("Hi, "+_currentUser.displayName+"!" ?? '',style: TextStyle(fontSize: 22,color: const Color(0xFF3E2723),fontWeight:FontWeight.w700),),
+                 Container(
+                     child: Text("Hi, "+_currentUser.displayName+"!" ?? '',style: TextStyle(fontSize: 22,color: const Color(0xFF3E2723),fontWeight:FontWeight.w700),)),
                 ],
               ),
             ),
@@ -123,9 +127,6 @@ class _SignInDemoState extends State<SignInDemo> {
           ],
         ),
       );
-
-
-
     }
     else {
       return Scaffold(
@@ -259,17 +260,10 @@ class _SignInDemoState extends State<SignInDemo> {
       location =
       'Lat: ${position.latitude} , Long: ${position.longitude}';
       GetAddressFromLatLong(position);
-
-
-
     } catch (error) {
       print(error);
     }
   }
-
-
-
-
 
   Future<void> saveEmployeeData() {
 
