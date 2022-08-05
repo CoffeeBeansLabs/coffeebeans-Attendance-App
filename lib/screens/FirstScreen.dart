@@ -1,70 +1,127 @@
+import 'package:coffeebeansattendanceapp/screens/ScanScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
+
+import 'ScanScreen.dart';
+
+GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['profile', 'email']);
 class FirstScreen extends StatefulWidget {
   @override
   FirstScreenState createState() => FirstScreenState();
 }
 
 class FirstScreenState extends State<FirstScreen> {
+  GoogleSignInAccount _currentUser;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+      setState(() {
+        _currentUser = account;
+      });
+    });
+    _googleSignIn.signInSilently();
   }
   // String date = DateFormat("EEEEE, MMMM dd").format(DateTime.now());
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned(
+            top: 30,
 
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                    child: Image.asset('assets/shelf2.png',height: 140,)),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 390,
+            left: 30,
+            child: Column(
+              children: [
+                Container(
+                    child: Text("Hi, "+_currentUser.displayName+"!" ?? '',style: TextStyle(fontSize: 22,color: const Color(0xFF3E2723),fontWeight:FontWeight.w700),)),
+              ],
+            ),
+          ),
 
-    // return WillPopScope(
-    //     onWillPop:() async  {
-    //       DateTime.now();
-    //     },
-    //     //call function on back button press
-    //     child:Scaffold(
-    //         body:Stack(
-    //           children: [
-    //             Positioned(
-    //               top: 30,
-    //               left: 10,
-    //               child: Column(
-    //                 children: [
-    //                   Container(
-    //                       child: Image.asset('assets/shelf2.png')),
-    //                 ],
-    //               ),
-    //             ),
-    //             Positioned(
-    //               left: 85,
-    //               child: Column(
-    //                 mainAxisAlignment: MainAxisAlignment.center,
-    //                 children: [
-    //                   Container(
-    //                       margin: EdgeInsets.only(top: 300,),
-    //                       child: Image.asset('assets/big-check.png',height: 80,width: 80,)),
-    //
-    //                   Container(
-    //                     margin: EdgeInsets.only(top: 24),
-    //                     child: Text('Attendance marked',
-    //                       textAlign: TextAlign.center,
-    //                       style: TextStyle(fontFamily: 'Montserrat',color: const Color(0xFF553205),
-    //                         fontStyle: FontStyle.normal,
-    //                         fontWeight: FontWeight.w700,
-    //                         fontSize: 22,
-    //
-    //                       ),),
-    //                   ),
-    //                   Text(date,style: TextStyle(fontWeight: FontWeight.w500,color:const Color(0xFFA1887F),fontSize: 18,
-    //                   ),),
-    //                 ],
-    //               ),
-    //             ),
-    //           ],
-    //
-    //         )
-    //     )
-    // );
+          Positioned(
+            top: 420,
+            left: 30,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Are you at the office today?",style: TextStyle(fontSize: 18,color: Colors.brown[300]),),
+              ],
+            ),
+          ),
+
+          Positioned(
+            top: 470,
+            left: 30,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      primary: Colors.brown[900],
+                      fixedSize: const Size(335, 50),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4))),
+                  onPressed: () {
+
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ScanScreen()));
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('CHECK IN',style: TextStyle(fontFamily: 'Montserrat',
+                        fontStyle: FontStyle.normal,
+                        fontWeight:FontWeight.w700 ,
+                        fontSize: 16,
+                        color:const Color(0xFFF6EEE3),
+                      ),), // <-- Text
+                      SizedBox(
+                        width: 5,
+                      ),
+                      SvgPicture.asset('assets/Vector.svg',height: 10,),
+                      // Image.asset('assets/Vector.png',height: 20,)
+
+                    ],
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
   }
+  // Future<void> saveEmployeeData() {
+  //
+  //   var data =  http.post(Uri.parse("https://attendance-application-spring.herokuapp.com/employee/save"), headers:<String,String>{
+  //     'Content-Type': 'application/json;charset=UTF-8'
+  //   },
+  //     body:jsonEncode({
+  //       'email':_currentUser.email,
+  //       'name':_currentUser.displayName
+  //     }),
+  //
+  //   ).then((response) => print(response.body)).catchError((error) => print(error));
+  //
+  //   print(data);
+  //
+  // }
 }

@@ -98,10 +98,8 @@ class _ScanScreenState extends State<ScanScreen> {
     return Scaffold(
       body: Stack(
         children: [
-
           Positioned(
             top: 30,
-            left: 10,
             child: Column(
               children: [
                 Container(
@@ -154,10 +152,10 @@ class _ScanScreenState extends State<ScanScreen> {
                   decoration:
                   new InputDecoration(
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF553205)),
+                      borderSide: BorderSide(color: Color(0xFF553205),width: 3),
                     ),
-                    enabledBorder: new  OutlineInputBorder(
-                        borderSide: const  BorderSide(color: Color(0xFF553205),width: 3),
+                    enabledBorder: const OutlineInputBorder(
+                        borderSide: const  BorderSide(color: const Color(0xFF553205),width: 3),
                     ),
                     prefixText: "\t",
                     suffixIcon:Padding(
@@ -289,10 +287,11 @@ class _ScanScreenState extends State<ScanScreen> {
                             style: ElevatedButton.styleFrom(primary:Color(0xFF422501),fixedSize: const Size(340, 50),),
                             onPressed:(checkboxImageDisable && scanImageDisable)? () async {
                               setState(()=>submitButtonDisable=false);
-                              saveAttendanceData();
+                              await saveAttendanceData();
                               await saveTodayDate();
+                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen()));
+                              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LastScreen()),(route) => false);
 
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen()));
                             }:null, child: Text("DONE",style: TextStyle(fontFamily:'Montserrat',fontStyle: FontStyle.normal ,color: const Color(0xFFF6EEE3),fontWeight: FontWeight.w700,fontSize: 16),)),
               ],
             ),
@@ -383,7 +382,7 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
 
-  Future<void> saveAttendanceData() async {
+  Future saveAttendanceData() async {
     print("check save data in database or not ");
     Position position = await _getGeoLocationPosition();
     data =  http.post(Uri.parse("https://attendance-application-spring.herokuapp.com/attendance/save"), headers:<String,String>{
@@ -396,7 +395,7 @@ class _ScanScreenState extends State<ScanScreen> {
            'latitude' : position.latitude,
       }),
     ).then((response) => print(response.body)).catchError((error) => print(error));
-    print('json data : $data');
+    print('json data : '+data.toString());
     print("save data in json format");
   }
 
