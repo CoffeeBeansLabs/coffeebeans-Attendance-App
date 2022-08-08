@@ -49,7 +49,7 @@ class FirstScreenState extends State<FirstScreen> {
             child: Column(
               children: [
                 Container(
-                    child: Text("Hi, "+_currentUser.displayName+"!" ?? '',style: TextStyle(fontSize: 22,color: const Color(0xFF3E2723),fontWeight:FontWeight.w700),)),
+                    child: Text("Hi, "+ _currentUser.displayName ?? '',style: TextStyle(fontSize: 22,color: const Color(0xFF3E2723),fontWeight:FontWeight.w700),)),
               ],
             ),
           ),
@@ -109,19 +109,32 @@ class FirstScreenState extends State<FirstScreen> {
     );
 
   }
-  // Future<void> saveEmployeeData() {
-  //
-  //   var data =  http.post(Uri.parse("https://attendance-application-spring.herokuapp.com/employee/save"), headers:<String,String>{
-  //     'Content-Type': 'application/json;charset=UTF-8'
-  //   },
-  //     body:jsonEncode({
-  //       'email':_currentUser.email,
-  //       'name':_currentUser.displayName
-  //     }),
-  //
-  //   ).then((response) => print(response.body)).catchError((error) => print(error));
-  //
-  //   print(data);
-  //
-  // }
+
+  Widget _buildPopupDialog(BuildContext context) {
+    return AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+
+          Container(
+              margin: EdgeInsets.only(top: 20),
+              child: Text("Permission required",style: TextStyle(fontSize: 18,fontStyle: FontStyle.normal,fontWeight: FontWeight.w900,color: Color(0xFF553205)),)),
+          Container(
+              margin: EdgeInsets.only(top: 16),
+              child: Text("Please allow location access for marking your attendance accurately.",style: TextStyle(fontSize: 18,fontStyle: FontStyle.normal,fontWeight: FontWeight.w500,color: Color(0xFF553205)),)),
+
+        ],
+      ),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
 }

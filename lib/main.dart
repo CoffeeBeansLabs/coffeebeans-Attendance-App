@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:coffeebeansattendanceapp/screens/login.dart';
 
 void main() => runApp(MaterialApp(
-  title: 'Google Sign in',
+  title: 'CB Attendance',
   home: Splash(),
   theme: ThemeData(fontFamily: 'Montserrat'),
 ));

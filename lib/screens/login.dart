@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coffeebeansattendanceapp/screens/FirstScreen.dart';
 import 'package:coffeebeansattendanceapp/screens/LastScreen.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +9,13 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['profile', 'email']);
+
+import 'package:http/http.dart' as http;
+
+GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['profile', 'email']
+);
+
 class SignInDemo extends StatefulWidget {
   @override
   _SignInDemoState createState() => _SignInDemoState();
@@ -15,6 +23,7 @@ class SignInDemo extends StatefulWidget {
 class _SignInDemoState extends State<SignInDemo> {
   var disable=true;
   GoogleSignInAccount _currentUser;
+
   String location = 'Null, Press Button';
   String Address = 'search';
   final String assetName = 'assets/Vector.svg';
@@ -41,6 +50,7 @@ class _SignInDemoState extends State<SignInDemo> {
   }
   @override
   Widget build(BuildContext context) {
+
 
     if(_currentUser!=null) {
       readStoreData().then((value){
@@ -81,7 +91,7 @@ class _SignInDemoState extends State<SignInDemo> {
                   Container(
                     margin: EdgeInsets.only(top: 350),
                     child: Text(
-                      'Sign in with your Coffeebeans \nemail to continue',
+                      'Sign in with your CoffeeBeans \nemail to continue',
                       style: TextStyle(fontFamily: 'Montserrat',
                         fontStyle: FontStyle.normal,
                         fontWeight: FontWeight.w400,
@@ -108,7 +118,6 @@ class _SignInDemoState extends State<SignInDemo> {
                           fixedSize: const Size(330, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4),
-
                           )),
                       onPressed: () async {
                         await _handleSignIn();
@@ -163,7 +172,10 @@ class _SignInDemoState extends State<SignInDemo> {
     }
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
+      // showDialog(context: context, builder: (BuildContext context)=>_buildPopupDialog(context));
+
       permission = await Geolocator.requestPermission();
+
       if (permission == LocationPermission.denied) {
         return Future.error('Location permissions are denied');
       }
@@ -190,7 +202,8 @@ class _SignInDemoState extends State<SignInDemo> {
   Future<void> _handleSignIn() async {
     try {
       await _googleSignIn.signIn();
-      // Navigator.push(context, MaterialPageRoute(builder: (context)=>FirstScreen()));
+
+
       Position position = await _getGeoLocationPosition();
       location =
       'Lat: ${position.latitude} , Long: ${position.longitude}';
@@ -199,6 +212,48 @@ class _SignInDemoState extends State<SignInDemo> {
       print(error);
     }
   }
+  // https://cbattendanceapp.herokuapp.com/employee/save
+// Future<void> saveEmployeeData() {
+//
+//   var data =  http.post(Uri.parse("https://attendance-application-spring.herokuapp.com/employee/save"), headers:<String,String>{
+//     'Content-Type': 'application/json;charset=UTF-8'
+//   },
+//     body:jsonEncode({
+//       'email':_currentUser.email,
+//       'name':_currentUser.displayName
+//     }),
+//
+//   ).then((response) => print(response.body)).catchError((error) => print(error));
+//
+//   print(data);
+//
+// }
+
+  Widget _buildPopupDialog(BuildContext context) {
+    return AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+
+          Container(
+              margin: EdgeInsets.only(top: 20),
+              child: Text("Permission required",style: TextStyle(fontSize: 18,fontStyle: FontStyle.normal,fontWeight: FontWeight.w900,color: Color(0xFF553205)),)),
+          Container(
+              margin: EdgeInsets.only(top: 16),
+              child: Text("Please allow location access for marking your attendance accurately.",style: TextStyle(fontSize: 18,fontStyle: FontStyle.normal,fontWeight: FontWeight.w500,color: Color(0xFF553205)),)),
+
+        ],
+      ),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
 }
-
-

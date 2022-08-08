@@ -20,7 +20,6 @@ class ScanScreen extends StatefulWidget {
 class _ScanScreenState extends State<ScanScreen> {
 
   GoogleSignInAccount _currentUser;
-
   var qrstr = " ";
   bool scanButtonDisable=true;
   bool submitButtonDisable=false;
@@ -28,10 +27,11 @@ class _ScanScreenState extends State<ScanScreen> {
   bool checkboxImageDisable=false;
   bool scanImageDisable=false;
   bool failqrcode=false;
+  bool hightemp=false;
 
   String location = 'Null, Press Button';
   String Address = 'search';
-  TextEditingController Textcontroller = new TextEditingController();
+  TextEditingController Textcontroller = TextEditingController();
   String qrcode;
   var listdata;
   var data;
@@ -53,7 +53,9 @@ class _ScanScreenState extends State<ScanScreen> {
 
     Textcontroller.addListener(() {
       enable=Textcontroller.text.isNotEmpty;
-       setState(()=>this.checkboxImageDisable=enable);
+      setState(() {
+
+      });
 
     });
 
@@ -141,36 +143,76 @@ class _ScanScreenState extends State<ScanScreen> {
 
           Positioned(
             left: 30,
-              width: 150,
-              child: Container(
-                margin: EdgeInsets.only(top:350,),
-                child: TextField(
+            width: 150,
+            child: Container(
+              margin: EdgeInsets.only(top:350,),
+              child: TextField(
+                controller : Textcontroller,
 
-                  controller : Textcontroller,
-                  style: TextStyle(fontSize: 16,height:1,fontWeight: FontWeight.bold,color: const Color(0xFF553205) ),
+                style: TextStyle(fontSize: 16,height:1,fontWeight: FontWeight.bold,color: const Color(0xFF553205) ),
 
-                  decoration:
-                  new InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF553205),width: 3),
-                    ),
-                    enabledBorder: const OutlineInputBorder(
-                        borderSide: const  BorderSide(color: const Color(0xFF553205),width: 3),
-                    ),
-                    prefixText: "\t",
-                    suffixIcon:Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Text("°F",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w700,
-                          color: const Color(0xFFCAB9A3)),),
-                    ),
+                decoration:
+                InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF553205),width: 3),
                   ),
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: const  BorderSide(color: const Color(0xFF553205),width: 3),
+                  ),
+                  prefixText: "\t",
+                  suffixIcon:Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Text("°F",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w700,
+                        color: const Color(0xFFCAB9A3)),),
+                  ),
                 ),
+                onSubmitted: (String value){
+                  if (double.parse(value)>= 90 && double.parse(value) <=100) {
+                        checkboxImageDisable = true;
+                        hightemp=false;
+                        print("check range temperature");
+                      }
+                  else if(double.parse(value)>100){
+                    checkboxImageDisable=false;
+                    showDialog(context: context, builder: (BuildContext context)=>_buildPopupDialog(context));
+                  }
+                  else {
+                    print("check temperature out of range");
+                    showDialog(context: context, builder: (BuildContext context)=>_buildPopupDialog(context));
+                  }
+                },
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+
+                  onChanged: (String value) {
+                    try {
+                      if(Textcontroller.text.isEmpty){
+                        checkboxImageDisable=false;
+                        hightemp=false;
+                      }
+                      else if (int.parse(value) >= 90 && int.parse(value) <=100) {
+                        checkboxImageDisable = true;
+                        hightemp=false;
+                        print("check range temperature");
+                      }
+                      else if(int.parse(value)>100){
+                        checkboxImageDisable=false;
+                        // showDialog(context: context, builder: (BuildContext context)=>_buildPopupDialog(context));
+
+                      }
+                      // // else if(int.parse(value)<90) {
+                      // //   checkboxImageDisable=false;
+                      // //   showDialog(context: context, builder: (BuildContext context)=>_buildPopupDialog(context));
+                      // //
+                      // // }
+                    }
+                    catch (e) {}
+                  }
+
               ),
             ),
+          ),
 
-
-        // textfeild check image
+          // textfeild check image
           Positioned(
             left: 190,
             child: Column(
@@ -181,7 +223,27 @@ class _ScanScreenState extends State<ScanScreen> {
                     child: Container(
                       margin: EdgeInsets.only(top:360),
                       child: Image(
-                        image: Image.asset("assets/small-check.png").image
+                          image: Image.asset("assets/small-check.png").image
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          //out of range temp value
+          Positioned(
+            left: 190,
+            child: Column(
+              children: [
+                GestureDetector(
+                  child: Visibility(
+                    visible: hightemp,
+                    child: Container(
+                      margin: EdgeInsets.only(top:360),
+                      child: Image(
+                          image: Image.asset("assets/fail.png").image
                       ),
                     ),
                   ),
@@ -210,22 +272,22 @@ class _ScanScreenState extends State<ScanScreen> {
             left: 30,
             child: Column(
               children: [
-              Container(
-                margin: EdgeInsets.only(top:470),
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: const Color(  0xFFE9CFAB),
+                Container(
+                  margin: EdgeInsets.only(top:470),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: const Color(  0xFFE9CFAB),
                         fixedSize: const Size(150, 50),
                         onSurface:const Color.fromRGBO(255, 179, 102, 1),
-                    ),
-                    onPressed:scanButtonDisable?() {
-                              setState(()=>scanButtonDisable=true);
-                              _fetchPost();
-                              scanQr();
-                              }:null,
-                            child:
-                            Text(scanButtonDisable ? ('SCAN') : ('SCANNED'),style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16,  color: scanButtonDisable ? const Color(0xFF654113):const Color(0xFFC0A17A),),)),
-              ),
+                      ),
+                      onPressed:scanButtonDisable?() {
+                        setState(()=>scanButtonDisable=true);
+                        _fetchPost();
+                        scanQr();
+                      }:null,
+                      child:
+                      Text(scanButtonDisable ? ('SCAN') : ('SCANNED'),style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16,  color: scanButtonDisable ? const Color(0xFF654113):const Color(0xFFC0A17A),),)),
+                ),
               ],
             ),
           ),
@@ -283,16 +345,16 @@ class _ScanScreenState extends State<ScanScreen> {
             left: 30,
             child: Column(
               children: [
-              ElevatedButton(
-                            style: ElevatedButton.styleFrom(primary:Color(0xFF422501),fixedSize: const Size(340, 50),),
-                            onPressed:(checkboxImageDisable && scanImageDisable)? () async {
-                              setState(()=>submitButtonDisable=false);
-                              await saveAttendanceData();
-                              await saveTodayDate();
-                              // Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen()));
-                              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LastScreen()),(route) => false);
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(primary:Color(0xFF422501),fixedSize: const Size(340, 50),),
+                    onPressed:(checkboxImageDisable && scanImageDisable)? () async {
+                      setState(()=>submitButtonDisable=false);
+                      await saveAttendanceData();
+                      await saveTodayDate();
+                      // Navigator.push(context, MaterialPageRoute(builder: (context)=>LastScreen()));
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LastScreen()),(route) => false);
 
-                            }:null, child: Text("DONE",style: TextStyle(fontFamily:'Montserrat',fontStyle: FontStyle.normal ,color: const Color(0xFFF6EEE3),fontWeight: FontWeight.w700,fontSize: 16),)),
+                    }:null, child: Text("DONE",style: TextStyle(fontFamily:'Montserrat',fontStyle: FontStyle.normal ,color: const Color(0xFFF6EEE3),fontWeight: FontWeight.w700,fontSize: 16),)),
               ],
             ),
           ),
@@ -382,22 +444,54 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
 
+
   Future saveAttendanceData() async {
     print("check save data in database or not ");
     Position position = await _getGeoLocationPosition();
-    data =  http.post(Uri.parse("https://attendance-application-spring.herokuapp.com/attendance/save"), headers:<String,String>{
+    data =  http.post(Uri.parse("https://cbattendanceapp.herokuapp.com/attendance/save"), headers:<String,String>{
       'Content-Type': 'application/json;charset=UTF-8'
     },
       body:jsonEncode({
         'email' : _currentUser.email,
         'temperature' : Textcontroller.text,
-           'longitude' : position.longitude,
-           'latitude' : position.latitude,
+        'longitude' : position.longitude,
+        'latitude' : position.latitude,
       }),
     ).then((response) => print(response.body)).catchError((error) => print(error));
     print('json data : '+data.toString());
     print("save data in json format");
   }
 
-  }
+  Widget _buildPopupDialog(BuildContext context) {
+    return AlertDialog(
 
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(left:100),
+              child: Image.asset('assets/yellow.png', height: 67, width: 67,)),
+        Container(
+          margin: EdgeInsets.only(top: 20),
+            child: Text("Your body temperature is outside the safe range.",style: TextStyle(fontSize: 18,fontStyle: FontStyle.normal,fontWeight: FontWeight.w500,color: Color(0xFF553205)),)),
+    Container(
+      margin: EdgeInsets.only(top: 16),
+        child: Text("Please contact the People Team for further guidance.",style: TextStyle(fontSize: 18,fontStyle: FontStyle.normal,fontWeight: FontWeight.w700,color: Color(0xFF553205)),)),
+
+        ],
+      ),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: Text("close")
+          // child: const Text('Close'),
+
+        ),
+      ],
+    );
+  }
+}
