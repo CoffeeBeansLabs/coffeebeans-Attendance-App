@@ -9,7 +9,6 @@ void main() => runApp(MaterialApp(
   theme: ThemeData(fontFamily: 'Montserrat'),
 ));
 
-
 class Splash extends StatefulWidget {
   @override
   _SplashState createState()=> _SplashState();

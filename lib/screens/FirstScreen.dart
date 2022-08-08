@@ -2,8 +2,6 @@ import 'package:coffeebeansattendanceapp/screens/ScanScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-
 import 'ScanScreen.dart';
 
 GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['profile', 'email']);
@@ -26,7 +24,6 @@ class FirstScreenState extends State<FirstScreen> {
     });
     _googleSignIn.signInSilently();
   }
-  // String date = DateFormat("EEEEE, MMMM dd").format(DateTime.now());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +31,6 @@ class FirstScreenState extends State<FirstScreen> {
         children: [
           Positioned(
             top: 30,
-
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -71,7 +67,6 @@ class FirstScreenState extends State<FirstScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       primary: Colors.brown[900],
@@ -79,7 +74,6 @@ class FirstScreenState extends State<FirstScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4))),
                   onPressed: () {
-
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>ScanScreen()));
                   },
                   child: Row(
@@ -95,19 +89,15 @@ class FirstScreenState extends State<FirstScreen> {
                         width: 5,
                       ),
                       SvgPicture.asset('assets/Vector.svg',height: 10,),
-                      // Image.asset('assets/Vector.png',height: 20,)
-
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
         ],
       ),
     );
-
   }
 
   Widget _buildPopupDialog(BuildContext context) {
@@ -116,14 +106,12 @@ class FirstScreenState extends State<FirstScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-
           Container(
               margin: EdgeInsets.only(top: 20),
               child: Text("Permission required",style: TextStyle(fontSize: 18,fontStyle: FontStyle.normal,fontWeight: FontWeight.w900,color: Color(0xFF553205)),)),
           Container(
               margin: EdgeInsets.only(top: 16),
               child: Text("Please allow location access for marking your attendance accurately.",style: TextStyle(fontSize: 18,fontStyle: FontStyle.normal,fontWeight: FontWeight.w500,color: Color(0xFF553205)),)),
-
         ],
       ),
       actions: <Widget>[

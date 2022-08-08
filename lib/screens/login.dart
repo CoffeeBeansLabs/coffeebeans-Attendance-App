@@ -9,7 +9,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:http/http.dart' as http;
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -21,12 +20,10 @@ class SignInDemo extends StatefulWidget {
   _SignInDemoState createState() => _SignInDemoState();
 }
 class _SignInDemoState extends State<SignInDemo> {
-  var disable=true;
   GoogleSignInAccount _currentUser;
-
   String location = 'Null, Press Button';
   String Address = 'search';
-  final String assetName = 'assets/Vector.svg';
+
   @override
   void initState() {
     // TODO: implement initState
@@ -76,7 +73,6 @@ class _SignInDemoState extends State<SignInDemo> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   Container(
                       margin: EdgeInsets.only(top: 150),
                       child: Image.asset('assets/logo.png', height: 120,)),
@@ -135,7 +131,6 @@ class _SignInDemoState extends State<SignInDemo> {
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             color: const Color(0xFF757575),
-
                           ),),
                           // <-- Text
                           SizedBox(
@@ -148,18 +143,11 @@ class _SignInDemoState extends State<SignInDemo> {
                   ),
                 ],
               ),
-
             ),
-
           ],
         ),
       );
     }
-
-
-    // return Scaffold(
-    //   body: Center(child: _buildBody()),
-    // );
   }
 
   Future<Position> _getGeoLocationPosition() async {
@@ -172,10 +160,7 @@ class _SignInDemoState extends State<SignInDemo> {
     }
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      // showDialog(context: context, builder: (BuildContext context)=>_buildPopupDialog(context));
-
       permission = await Geolocator.requestPermission();
-
       if (permission == LocationPermission.denied) {
         return Future.error('Location permissions are denied');
       }
@@ -197,13 +182,9 @@ class _SignInDemoState extends State<SignInDemo> {
         .postalCode}, ${place.country}';
     setState(() {});
   }
-
-
   Future<void> _handleSignIn() async {
     try {
       await _googleSignIn.signIn();
-
-
       Position position = await _getGeoLocationPosition();
       location =
       'Lat: ${position.latitude} , Long: ${position.longitude}';

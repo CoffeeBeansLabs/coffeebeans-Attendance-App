@@ -16,10 +16,6 @@ class LastScreenState extends State<LastScreen> {
   String date = DateFormat("EEEEE, MMMM dd").format(DateTime.now());
   @override
   Widget build(BuildContext context) {
-
-    //
-
-
     return Scaffold(
       body: Stack(
         children: [
@@ -40,7 +36,6 @@ class LastScreenState extends State<LastScreen> {
                 Container(
                     margin: EdgeInsets.only(top: 300,),
                     child: Image.asset('assets/big-check.png',height: 80,width: 80,)),
-
                 Container(
                   margin: EdgeInsets.only(top: 24),
                   child: Text('Attendance marked',
@@ -49,7 +44,6 @@ class LastScreenState extends State<LastScreen> {
                       fontStyle: FontStyle.normal,
                       fontWeight: FontWeight.w700,
                       fontSize: 22,
-
                     ),),
                 ),
                 Text(date,style: TextStyle(fontWeight: FontWeight.w500,color:const Color(0xFFA1887F),fontSize: 18,

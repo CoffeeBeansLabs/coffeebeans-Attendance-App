@@ -32,11 +32,7 @@ class _ScanScreenState extends State<ScanScreen> {
   String location = 'Null, Press Button';
   String Address = 'search';
   TextEditingController Textcontroller = TextEditingController();
-  String qrcode;
-  var listdata;
   var data;
-  String localdate = DateFormat("EEEEE, MMMM, dd").format(DateTime.now());
-  var apidate;
 
   var enable;
 
@@ -54,13 +50,9 @@ class _ScanScreenState extends State<ScanScreen> {
     Textcontroller.addListener(() {
       enable=Textcontroller.text.isNotEmpty;
       setState(() {
-
       });
-
     });
-
   }
-
   Future<Position> _getGeoLocationPosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -93,8 +85,6 @@ class _ScanScreenState extends State<ScanScreen> {
         .postalCode}, ${place.country}';
     setState(() {});
   }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,18 +186,10 @@ class _ScanScreenState extends State<ScanScreen> {
                       }
                       else if(int.parse(value)>100){
                         checkboxImageDisable=false;
-                        // showDialog(context: context, builder: (BuildContext context)=>_buildPopupDialog(context));
-
                       }
-                      // // else if(int.parse(value)<90) {
-                      // //   checkboxImageDisable=false;
-                      // //   showDialog(context: context, builder: (BuildContext context)=>_buildPopupDialog(context));
-                      // //
-                      // // }
                     }
                     catch (e) {}
                   }
-
               ),
             ),
           ),
@@ -232,25 +214,6 @@ class _ScanScreenState extends State<ScanScreen> {
             ),
           ),
 
-          //out of range temp value
-          Positioned(
-            left: 190,
-            child: Column(
-              children: [
-                GestureDetector(
-                  child: Visibility(
-                    visible: hightemp,
-                    child: Container(
-                      margin: EdgeInsets.only(top:360),
-                      child: Image(
-                          image: Image.asset("assets/fail.png").image
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
 
           Positioned(
             left: 30,
@@ -364,8 +327,6 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   String _data;
-
-
   Future _fetchPost() async  {
     print('print 1');
     http.Response response = await http.get(Uri.parse("https://attendance-application-spring.herokuapp.com/qrcode/uniqueId"));
@@ -377,20 +338,15 @@ class _ScanScreenState extends State<ScanScreen> {
     return "Success";
   }
 
-
   Future <void>scanQr()async{
     try {
 
       FlutterBarcodeScanner.scanBarcode('#2A99CF', 'cancel', true, ScanMode.QR)
           .then((value) async {
         setState(() {
-
           print("camera reading value is :  $value");
         });
-
-        print("qrcode data is "+_data.toString());
-
-
+        print("Qr Generator  data is "+_data.toString());
         if(value=="-1") {
           failqrcode=false;
           Text(qrstr=" ");
@@ -401,7 +357,6 @@ class _ScanScreenState extends State<ScanScreen> {
           scanImageDisable=true;
           failqrcode=false;
           Text(qrstr=" ");
-          // scanImageDisable=!scanImageDisable;
         }
         else if(value!=_data) {
           await _fetchPost();
@@ -412,7 +367,6 @@ class _ScanScreenState extends State<ScanScreen> {
             scanImageDisable=true;
             failqrcode=false;
             Text(qrstr=" ");
-
           }
           else {
             Text(qrstr="Invalid QR. Please retry.");
@@ -433,17 +387,12 @@ class _ScanScreenState extends State<ScanScreen> {
       });
     }
   }
-
-
   Future<void> saveTodayDate() async {
     final prefs = await SharedPreferences.getInstance();
     String date = DateFormat("MMMM dd yyyy").format(DateTime.now());
-// set value
     await prefs.setString('TodayDate', date);
     print("check store data in dateformat :$date");
   }
-
-
 
   Future saveAttendanceData() async {
     print("check save data in database or not ");
@@ -464,7 +413,6 @@ class _ScanScreenState extends State<ScanScreen> {
 
   Widget _buildPopupDialog(BuildContext context) {
     return AlertDialog(
-
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
